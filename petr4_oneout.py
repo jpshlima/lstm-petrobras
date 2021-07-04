@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 """
-Created on Sun Jul  4 16:07:32 2021
 
 @author: jpshlima
 """
