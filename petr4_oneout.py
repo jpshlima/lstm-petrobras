@@ -22,7 +22,6 @@ base_train = base.iloc[:, 1:2].values
 
 # normalizing
 norm = MinMaxScaler(feature_range=(0,1))
-
 base_train_norm = norm.fit_transform(base_train)
 
 
