@@ -10,6 +10,7 @@ import pandas as pd
 from keras.models import Sequential
 from keras.layers import Dense, Dropout, LSTM
 from sklearn.preprocessing import MinMaxScaler
+import matplotlib.pyplot as plt
 
 
 # read data
@@ -85,6 +86,17 @@ x_test = np.reshape(x_test, (x_test.shape[0], x_test.shape[1], 1))
 prediction = regressor.predict(x_test)
 # undo normalization for better viewing our results
 prediction = norm.inverse_transform(prediction)
+
+
+# visualization
+plt.plot(real_price_test, color = 'red', label = 'Real price')
+plt.plot(prediction, color = 'blue', label = 'Prediction')
+plt.title('PETR4 stock price prediction')
+plt.xlabel('Time (days)')
+plt.ylabel('Price (R$)')
+plt.legend()
+plt.grid()
+plt.show()
 
 
 
