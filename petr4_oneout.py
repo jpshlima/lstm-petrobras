@@ -63,3 +63,32 @@ regressor.add(Dense(units = 1, activation = 'linear'))
 regressor.compile(optimizer = 'rmsprop', loss = 'mean_squared_error', metrics = ['mean_absolute_error'])
 regressor.fit(prev, real_price, epochs = 100, batch_size = 32)
 
+# testing phase
+# read test data
+base_test = pd.read_csv('petr4_test.csv')
+real_price_test = base_test.iloc[:,1:2].values
+
+# preparing inputs for test
+full_base = pd.concat((base['Open'], base_test['Open']), axis = 0)
+inputs = full_base[len(full_base) - len(base_test) - 90:].values
+inputs = inputs.reshape(-1, 1)
+inputs = norm.transform(inputs)
+
+# loop for filling variable
+x_test = []
+for i in range (90, inputs.size):
+    x_test.append(inputs[i-90:i, 0])
+# format adapting
+x_test = np.array(x_test)
+x_test = np.reshape(x_test, (x_test.shape[0], x_test.shape[1], 1))
+
+prediction = regressor.predict(x_test)
+# undo normalization for better viewing our results
+prediction = norm.inverse_transform(prediction)
+
+
+
+
+
+
+
