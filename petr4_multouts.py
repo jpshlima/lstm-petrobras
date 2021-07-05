@@ -68,8 +68,40 @@ regressor.compile(optimizer = 'rmsprop', loss = 'mean_squared_error', metrics = 
 regressor.fit(prev, comb_price, epochs = 100, batch_size = 32)
 
 
+# testing phase
+# read test data
+base_test = pd.read_csv('petr4_test.csv')
+real_price_open = base_test.iloc[:,1:2].values
+real_price_high = base_test.iloc[:,2:3].values
 
+# preparing inputs for test
+full_base = pd.concat((base['Open'], base_test['Open']), axis = 0)
+inputs = full_base[len(full_base) - len(base_test) - 90:].values
+inputs = inputs.reshape(-1, 1)
+inputs = norm.transform(inputs)
 
+# loop for filling variable
+x_test = []
+for i in range (90, inputs.size):
+    x_test.append(inputs[i-90:i, 0])
+# format adapting
+x_test = np.array(x_test)
+x_test = np.reshape(x_test, (x_test.shape[0], x_test.shape[1], 1))
 
+prediction = regressor.predict(x_test)
+# undo normalization for better viewing our results
+prediction = norm.inverse_transform(prediction)
 
+# visualization
+plt.plot(real_price_open, color = 'red', label = 'Real open price')
+plt.plot(real_price_high, color = 'black', label = 'Real high price')
 
+plt.plot(prediction[:,0], color = 'blue', label = 'Open prediction')
+plt.plot(prediction[:,1], color = 'green', label = 'High prediction')
+
+plt.title('PETR4 stock price prediction')
+plt.xlabel('Time (days)')
+plt.ylabel('Price (R$)')
+plt.legend()
+plt.grid()
+plt.show()
