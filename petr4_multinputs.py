@@ -22,6 +22,9 @@ base_train = base.iloc[:, 1:7].values
 # normalizing
 norm = MinMaxScaler(feature_range=(0,1))
 base_train_norm = norm.fit_transform(base_train)
+# new normalizer for different dimensions
+norm2 = MinMaxScaler(feature_range=(0,1))
+norm2.fit_transform(base_train[:, 0:1])
 
 # initialing variables
 prev = []
@@ -73,7 +76,40 @@ regressor.compile(optimizer = 'adam', loss = 'mean_squared_error', metrics = ['m
 regressor.fit(prev, real_price, epochs = 100, batch_size = 32, callbacks = [es, rlr, mcp])
 
 
+# testing phase
+# read test data
+base_test = pd.read_csv('petr4_test.csv')
+real_price_test = base_test.iloc[:,1:2].values
 
+# preparing inputs for test
+frames = [base, base_test]
+full_base = pd.concat(frames)
+full_base = full_base.drop('Date', axis = 1)
+
+inputs = full_base[len(full_base) - len(base_test) - 90:].values
+inputs = norm.transform(inputs)
+
+# loop for filling variable
+x_test = []
+for i in range (90, len(inputs)):
+    x_test.append(inputs[i-90:i, 0:6])
+# format adapting
+x_test = np.array(x_test)
+
+prediction = regressor.predict(x_test)
+# undo normalization for better viewing our results
+prediction = norm2.inverse_transform(prediction)
+
+
+# visualization
+plt.plot(real_price_test, color = 'red', label = 'Real price')
+plt.plot(prediction, color = 'blue', label = 'Prediction')
+plt.title('PETR4 stock price prediction')
+plt.xlabel('Time (days)')
+plt.ylabel('Price (R$)')
+plt.legend()
+plt.grid()
+plt.show()
 
 
 
